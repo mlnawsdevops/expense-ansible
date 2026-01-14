@@ -1,19 +1,67 @@
+# - name: configure frontend server
+#   hosts: frontend
+#   become: yes
+#   tasks:
+#   - name: install nginx server
+#     ansible.builtin.package:
+#       name: nginx
+#       state: present
+  
+#   - name: start nginx server
+#     ansible.builtin.service: 
+#       name: nginx
+#       state: started
+#       enabled: yes
+
+#   - name: remove html directory
+#     ansible.builtin.file:
+#       path: /usr/share/nginx/html
+#       state: absent
+
+#   - name: create html directory
+#     ansible.builtin.file:
+#       path: /usr/share/nginx/html
+#       state: directory
+  
+#   - name: download the frontend code
+#     ansible.builtin.get_url:
+#       url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+#       dest: /tmp/frontend.zip
+
+#   - name: extract the code
+#     ansible.builtin.unarchive:
+#       src: /tmp/frontend.zip
+#       dest: /usr/share/nginx/html
+#       remote_src: yes
+
+#   - name: copy expense conf file 
+#     ansible.builtin.copy:
+#       src: expense.conf 
+#       dest: /etc/nginx/default.d/expense.conf
+
+#   - name: restart nginx
+#     ansible.builtin.service:
+#       name: nginx
+#       state: restarted
+
+
 - name: configure frontend server
   hosts: frontend
   become: yes
   tasks:
-  - name: install nginx server
+
+  - name: install nginx
     ansible.builtin.package:
       name: nginx
       state: present
-  
-  - name: start nginx server
+
+  - name: start nginx
     ansible.builtin.service: 
       name: nginx
       state: started
       enabled: yes
 
-  - name: remove html directory
+  - name: remove old html directory
     ansible.builtin.file:
       path: /usr/share/nginx/html
       state: absent
@@ -22,22 +70,31 @@
     ansible.builtin.file:
       path: /usr/share/nginx/html
       state: directory
-  
-  - name: download the frontend code
+      owner: nginx
+      group: nginx
+      mode: '0755'
+
+  - name: download frontend code
     ansible.builtin.get_url:
       url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
       dest: /tmp/frontend.zip
 
-  - name: extract the code
+  - name: extract frontend code
     ansible.builtin.unarchive:
       src: /tmp/frontend.zip
       dest: /usr/share/nginx/html
       remote_src: yes
+      owner: nginx
+      group: nginx
+      extra_opts: [--strip-components=1]
 
-  - name: copy expense conf file 
+  - name: copy nginx config
     ansible.builtin.copy:
-      src: expense.conf 
+      src: files/expense.conf 
       dest: /etc/nginx/default.d/expense.conf
+      owner: root
+      group: root
+      mode: '0644'
 
   - name: restart nginx
     ansible.builtin.service:
