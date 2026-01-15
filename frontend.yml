@@ -45,138 +45,203 @@
 #       state: restarted
 
 
-# - name: configure frontend server
-#   hosts: frontend
-#   become: yes
-#   tasks:
+# # #code-2
+# # # - name: configure frontend server
+# # #   hosts: frontend
+# # #   become: yes
+# # #   tasks:
 
-#   - name: install nginx
-#     ansible.builtin.package:
-#       name: nginx
-#       state: present
+# # #   - name: install nginx
+# # #     ansible.builtin.package:
+# # #       name: nginx
+# # #       state: present
 
-#   - name: start nginx
-#     ansible.builtin.service: 
-#       name: nginx
-#       state: started
-#       enabled: yes
+# # #   - name: start nginx
+# # #     ansible.builtin.service: 
+# # #       name: nginx
+# # #       state: started
+# # #       enabled: yes
 
-#   - name: remove old html directory
-#     ansible.builtin.file:
-#       path: /usr/share/nginx/html
-#       state: absent
+# # #   - name: remove old html directory
+# # #     ansible.builtin.file:
+# # #       path: /usr/share/nginx/html
+# # #       state: absent
 
-#   - name: create html directory
-#     ansible.builtin.file:
-#       path: /usr/share/nginx/html
-#       state: directory
-#       owner: nginx
-#       group: nginx
-#       mode: '0755'
+# # #   - name: create html directory
+# # #     ansible.builtin.file:
+# # #       path: /usr/share/nginx/html
+# # #       state: directory
+# # #       owner: nginx
+# # #       group: nginx
+# # #       mode: '0755'
 
-#   - name: download frontend code
-#     ansible.builtin.get_url:
-#       url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
-#       dest: /tmp/frontend.zip
+# # #   - name: download frontend code
+# # #     ansible.builtin.get_url:
+# # #       url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+# # #       dest: /tmp/frontend.zip
 
-#   - name: extract frontend code
-#     ansible.builtin.unarchive:
-#       src: /tmp/frontend.zip
-#       dest: /usr/share/nginx/html
-#       remote_src: yes
+# # #   - name: extract frontend code
+# # #     ansible.builtin.unarchive:
+# # #       src: /tmp/frontend.zip
+# # #       dest: /usr/share/nginx/html
+# # #       remote_src: yes
 
-#   - name: copy nginx config
-#     ansible.builtin.copy:
-#       src: expense.conf 
-#       dest: /etc/nginx/default.d/expense.conf
-#       owner: root
-#       group: root
-#       mode: '0644'
+# # #   - name: copy nginx config
+# # #     ansible.builtin.copy:
+# # #       src: expense.conf 
+# # #       dest: /etc/nginx/default.d/expense.conf
+# # #       owner: root
+# # #       group: root
+# # #       mode: '0644'
 
-#   - name: restart nginx
-#     ansible.builtin.service:
-#       name: nginx
-#       state: restarted
+# # #   - name: restart nginx
+# # #     ansible.builtin.service:
+# # #       name: nginx
+# # #       state: restarted
 
 
-##code-3
+# # ##code-3
 
-- name: configure frontend server
+# # - name: configure frontend server
+# #   hosts: frontend
+# #   become: yes
+# #   tasks:
+
+# #   # 1️⃣ Install nginx
+# #   - name: install nginx server
+# #     ansible.builtin.package:
+# #       name: nginx
+# #       state: present
+
+# #   # 2️⃣ Ensure nginx is started and enabled
+# #   - name: start nginx server
+# #     ansible.builtin.service: 
+# #       name: nginx
+# #       state: started
+# #       enabled: yes
+
+# #   # 3️⃣ Remove old html directory
+# #   - name: remove html directory
+# #     ansible.builtin.file:
+# #       path: /usr/share/nginx/html
+# #       state: absent
+
+# #   # 4️⃣ Create html directory with correct permissions
+# #   - name: create html directory
+# #     ansible.builtin.file:
+# #       path: /usr/share/nginx/html
+# #       state: directory
+# #       owner: nginx
+# #       group: nginx
+# #       mode: '0755'
+
+# #   # 5️⃣ Download frontend code
+# #   - name: download the frontend code
+# #     ansible.builtin.get_url:
+# #       url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+# #       dest: /tmp/frontend.zip
+
+# #   # 6️⃣ Extract frontend code
+# #   - name: extract the code
+# #     ansible.builtin.unarchive:
+# #       src: /tmp/frontend.zip
+# #       dest: /usr/share/nginx/html
+# #       remote_src: yes
+
+# #   # 7️⃣ Ensure backend host resolves
+# #   - name: add backend host to /etc/hosts
+# #     ansible.builtin.lineinfile:
+# #       path: /etc/hosts
+# #       line: "10.0.1.136 backend.daws100s.online"
+# #       state: present
+
+# #   # 8️⃣ Copy nginx configuration
+# #   - name: copy expense conf file 
+# #     ansible.builtin.copy:
+# #       src: expense.conf 
+# #       dest: /etc/nginx/default.d/expense.conf
+# #       owner: root
+# #       group: root
+# #       mode: '0644'
+
+# #   # 9️⃣ Test nginx configuration before restart
+# #   - name: test nginx configuration
+# #     ansible.builtin.command: nginx -t
+# #     register: nginx_test
+# #     ignore_errors: yes
+
+# #   - name: fail if nginx config test failed
+# #     ansible.builtin.fail:
+# #       msg: "Nginx configuration is invalid. Check expense.conf or backend host."
+# #     when: nginx_test.rc != 0
+
+# #   # 🔟 Restart nginx safely
+# #   - name: restart nginx
+# #     ansible.builtin.service:
+# #       name: nginx
+# #       state: restarted
+# #       enabled: yes
+
+
+#code-4
+- name: Configure Frontend Server
   hosts: frontend
   become: yes
+
   tasks:
+    - name: Install nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
 
-  # 1️⃣ Install nginx
-  - name: install nginx server
-    ansible.builtin.package:
-      name: nginx
-      state: present
+    - name: Enable nginx
+      ansible.builtin.service:
+        name: nginx
+        enabled: yes
 
-  # 2️⃣ Ensure nginx is started and enabled
-  - name: start nginx server
-    ansible.builtin.service: 
-      name: nginx
-      state: started
-      enabled: yes
+    - name: Remove default frontend content
+      ansible.builtin.file:
+        path: /usr/share/nginx/html/*
+        state: absent
 
-  # 3️⃣ Remove old html directory
-  - name: remove html directory
-    ansible.builtin.file:
-      path: /usr/share/nginx/html
-      state: absent
+    - name: Download frontend code
+      ansible.builtin.get_url:
+        url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+        dest: /tmp/frontend.zip
+        mode: '0644'
 
-  # 4️⃣ Create html directory with correct permissions
-  - name: create html directory
-    ansible.builtin.file:
-      path: /usr/share/nginx/html
-      state: directory
-      owner: nginx
-      group: nginx
-      mode: '0755'
+    - name: Extract frontend code
+      ansible.builtin.unarchive:
+        src: /tmp/frontend.zip
+        dest: /usr/share/nginx/html
+        remote_src: yes
 
-  # 5️⃣ Download frontend code
-  - name: download the frontend code
-    ansible.builtin.get_url:
-      url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
-      dest: /tmp/frontend.zip
+    - name: Set ownership for html directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        owner: nginx
+        group: nginx
+        recurse: yes
 
-  # 6️⃣ Extract frontend code
-  - name: extract the code
-    ansible.builtin.unarchive:
-      src: /tmp/frontend.zip
-      dest: /usr/share/nginx/html
-      remote_src: yes
+    - name: Copy nginx reverse proxy config
+      ansible.builtin.copy:
+        src: expense.conf
+        dest: /etc/nginx/default.d/expense.conf
+        owner: root
+        group: root
+        mode: '0644'
 
-  # 7️⃣ Ensure backend host resolves
-  - name: add backend host to /etc/hosts
-    ansible.builtin.lineinfile:
-      path: /etc/hosts
-      line: "10.0.1.136 backend.daws100s.online"
-      state: present
+    - name: Validate nginx configuration
+      ansible.builtin.command: nginx -t
+      register: nginx_test
+      changed_when: false
 
-  # 8️⃣ Copy nginx configuration
-  - name: copy expense conf file 
-    ansible.builtin.copy:
-      src: expense.conf 
-      dest: /etc/nginx/default.d/expense.conf
-      owner: root
-      group: root
-      mode: '0644'
+    - name: Start nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
 
-  # 9️⃣ Test nginx configuration before restart
-  - name: test nginx configuration
-    ansible.builtin.command: nginx -t
-    register: nginx_test
-    ignore_errors: yes
-
-  - name: fail if nginx config test failed
-    ansible.builtin.fail:
-      msg: "Nginx configuration is invalid. Check expense.conf or backend host."
-    when: nginx_test.rc != 0
-
-  # 🔟 Restart nginx safely
-  - name: restart nginx
-    ansible.builtin.service:
-      name: nginx
-      state: restarted
-      enabled: yes
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
