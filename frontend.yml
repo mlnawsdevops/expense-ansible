@@ -84,9 +84,6 @@
       src: /tmp/frontend.zip
       dest: /usr/share/nginx/html
       remote_src: yes
-      owner: nginx
-      group: nginx
-      extra_opts: [--strip-components=1]
 
   - name: copy nginx config
     ansible.builtin.copy:
